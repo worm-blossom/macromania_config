@@ -30,9 +30,11 @@ type FavoriteWordOptions = {
   word: string;
 };
 
-// The argument defines the default options.
-const [setter, getter] = makeConfigOptions<FavoriteWordOptions>({ word: "" });
-export { setter as FavoriteWordConfig };
+const [FavoriteWordConfig, getter] = makeConfigOptions<FavoriteWordOptions>(
+  "FavoriteWordConfig", // name of the macro function, used in stacktraces
+  { word: "" }, // default value
+);
+export { FavoriteWordConfig };
 
 export function FavoriteWord(): Expression {
   return <impure fun={(ctx) => getter(ctx).word} />;
