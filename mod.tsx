@@ -11,7 +11,7 @@ import {
 /**
  * Information about a config value change, as produced by the config setters.
  */
-type ConfigChange<T> = {
+type ConfigChange<T extends Record<string, any>> = {
   /**
    * Getter for the macromania state for this config value.
    */
@@ -21,9 +21,10 @@ type ConfigChange<T> = {
    */
   setter: (ctx: Context, t: T) => void;
   /**
-   * The value to set.
+   * The value to set, excluding its undefined properties which remain
+   * unchanged in the state.
    */
-  newValue: T;
+  changesToApply: T;
 };
 
 /**
@@ -72,7 +73,7 @@ export function Config(
       revertChanges.unshift({
         getter: change.getter,
         setter: change.setter,
-        newValue: change.getter(ctx),
+        changesToApply: { ...change.getter(ctx) },
       });
     }
 
@@ -81,13 +82,26 @@ export function Config(
     // Replace old config values with new ones.
     function pre(ctx: Context) {
       for (const change of changes) {
-        change.setter(ctx, change.newValue);
+        // Start with the prior config value.
+        const actualValue = { ...change.getter(ctx) };
+
+        // for each defined property of `change.changesToApply`, update it.
+        for (const key in change.changesToApply) {
+          if (change.changesToApply[key] !== undefined) {
+            actualValue[key] = change.changesToApply[key];
+          }
+        }
+
+        // Replace old config state with new state.
+        change.setter(ctx, actualValue);
       }
     }
 
     function post(ctx: Context) {
       for (const change of revertChanges) {
-        change.setter(ctx, change.newValue);
+        // `change.changesToApply` is not a delta but the prior config state,
+        // so apply it directly.
+        change.setter(ctx, change.changesToApply);
       }
     }
   }
@@ -127,7 +141,7 @@ export function makeConfigOptions<T>(
             state.push({
               getter: getConfigState,
               setter: setConfigState,
-              newValue: props,
+              changesToApply: props,
             });
             return "";
           }

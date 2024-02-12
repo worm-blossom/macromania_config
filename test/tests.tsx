@@ -137,3 +137,26 @@ Deno.test("delayed invocation", () => {
   );
   assertEquals(got, `defaultchouettepneuchouettedefault`);
 });
+
+Deno.test("omitting options", () => {
+  const ctx = new Context();
+  const got = ctx.evaluate(
+    <>
+      <FavoriteWord />
+      <Config options={<FavoriteWordConfig word="chouette" upperCase />}>
+        <FavoriteWord />
+        <Config
+          options={[
+            <FavoriteWordConfig word="foo" />,
+            <FavoriteWordConfig word="pneu" />,
+          ]}
+        >
+          <FavoriteWord />
+        </Config>
+        <FavoriteWord />
+      </Config>
+      <FavoriteWord />
+    </>,
+  );
+  assertEquals(got, `defaultCHOUETTEPNEUCHOUETTEdefault`);
+});

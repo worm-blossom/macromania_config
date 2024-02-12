@@ -1,36 +1,34 @@
 import { makeConfigOptions } from "../mod.tsx";
 import { Expression } from "../deps.ts";
 
-/**
- * Bar.
- */
 type FavoriteWordOptions = {
   /**
-   * Baz.
+   * This shows as docs on the `word` prop of the `FavoriteWordConfig` macro.
    */
-  word: string;
+  word?: string;
+  upperCase?: boolean;
 };
 
 // The argument defines the default options.
 const [
-  /**
-   * ooo
-   */
-  FavoriteWordConfig, getter] = makeConfigOptions<FavoriteWordOptions>(
+  FavoriteWordConfig,
+  getter,
+] = makeConfigOptions<FavoriteWordOptions>(
   "FavoriteWordConfig",
   {
     word: "default",
+    upperCase: false,
   },
 );
-/**
- * Foo.
- */
-export {
-  /**
-   * uququ
-   */
-  FavoriteWordConfig};
+export { FavoriteWordConfig };
 
 export function FavoriteWord(): Expression {
-  return <impure fun={(ctx) => getter(ctx).word} />;
+  return (
+    <impure
+      fun={(ctx) => {
+        const word = getter(ctx).word!;
+        return getter(ctx).upperCase! ? word.toUpperCase() : word;
+      }}
+    />
+  );
 }
