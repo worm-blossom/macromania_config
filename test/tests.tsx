@@ -44,7 +44,7 @@ Deno.test("setting multiple times in same options", () => {
   assertEquals(got, `defaultchouettepneuchouettedefault`);
 });
 
-Deno.test("error when usng setter outside Config options", () => {
+Deno.test("error when using setter outside Config options", () => {
   const ctx = new Context();
   const got = ctx.evaluate(
     <>

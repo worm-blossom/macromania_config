@@ -11,27 +11,31 @@ import {
 /**
  * Information about a config value change, as produced by the config setters.
  */
-type ConfigChange<T extends Record<string, any>> = {
+type ConfigChange<S, U extends Record<string, any>> = {
   /**
    * Getter for the macromania state for this config value.
    */
-  getter: (ctx: Context) => T;
+  getter: (ctx: Context) => S;
   /**
    * Getter for the macromania state for this config value.
    */
-  setter: (ctx: Context, t: T) => void;
+  setter: (ctx: Context, t: S) => void;
+  /**
+   * The function for applying the update to the old state.
+   */
+  applyUpdate: (old: S, update: U) => S;
   /**
    * The value to set, excluding its undefined properties which remain
    * unchanged in the state.
    */
-  changesToApply: T;
+  changesToApply: U;
 };
 
 /**
  * `null` outside any `<Config>` invocations. Otherwise collects config changes
  * from the `options` of the most recent `<Config>` invocation.
  */
-type ConfigState = null | ConfigChange<any>[];
+type ConfigState = null | ConfigChange<any, any>[];
 
 const [getState, setState] = createSubstate<ConfigState>(null);
 
@@ -61,66 +65,78 @@ export function Config(
   ): Expression {
     // The changes to apply in `pre`, as collected from the config setter
     // macros among the `options`.
-    const changes = getState(ctx) as ConfigChange<any>[];
+    const changes = getState(ctx) as ConfigChange<any, any>[];
 
     // Not evaluating options anymore, config setters should fail again.
     setState(ctx, null);
 
     // A list of instructions how to revert the config state changes. Applied
     // in `post`.
-    const revertChanges: ConfigChange<any>[] = [];
+    const revertChanges: [
+      any, /*old state*/
+      (ctx: Context, t: any) => void, /*setter*/
+    ][] = [];
     for (const change of changes) {
-      revertChanges.unshift({
-        getter: change.getter,
-        setter: change.setter,
-        changesToApply: { ...change.getter(ctx) },
-      });
+      revertChanges.unshift([change.getter(ctx), change.setter]);
     }
 
     return <lifecycle pre={pre} post={post}>{expressions(children)}</lifecycle>;
 
     // Replace old config values with new ones.
     function pre(ctx: Context) {
-      for (const change of changes) {
-        // Start with the prior config value.
-        const actualValue = { ...change.getter(ctx) };
+      for (
+        const {
+          getter,
+          setter,
+          applyUpdate,
+          changesToApply,
+        } of changes
+      ) {
+        const old = getter(ctx);
+        const new_ = applyUpdate(old, changesToApply);
 
-        // for each defined property of `change.changesToApply`, update it.
-        for (const key in change.changesToApply) {
-          if (change.changesToApply[key] !== undefined) {
-            actualValue[key] = change.changesToApply[key];
-          }
+        if (Object.is(old, new_)) {
+          ctx.error(`Erroneous config macro, the applyUpdate function must return a new value, the old one (modified or not).`);
+          return ctx.halt();
         }
 
-        // Replace old config state with new state.
-        change.setter(ctx, actualValue);
+        setter(ctx, new_);
       }
     }
 
     function post(ctx: Context) {
-      for (const change of revertChanges) {
-        // `change.changesToApply` is not a delta but the prior config state,
-        // so apply it directly.
-        change.setter(ctx, change.changesToApply);
+      for (const [oldState, setter] of revertChanges) {
+        setter(ctx, oldState);
       }
     }
   }
 }
 
 /**
- * Create a getter function and a setter macro for config options of type `T`.
+ * Create a getter function and a setter macro for config management.
+ *
+ * `S` is the type of the config state; there returned getter yields values of
+ * type `S`.
+ *
+ * `U` is the type of updates; the returned setter macro uses type `U` for its
+ * props.
+ *
  * @param setterName - The name to use for the setter macro. This is what gets
  * printed in a Macromania stacktrace.
  * @param defaultValue - The value of the config options if they are not
  * explicitly set.
+ * @param applyUpdate - A function that maps an old config state and an update to it
+ * to a new config state. The return value must be a new value, this function
+ * should not mutate its arguments.
  */
-export function makeConfigOptions<T>(
+export function makeConfigOptions<S, U extends Record<string, any>>(
   setterName: string,
-  defaultValue: T,
-): [(props: T) => Expression, (ctx: Context) => T] {
-  const [getConfigState, setConfigState] = createSubstate<T>(defaultValue);
+  defaultValue: S,
+  applyUpdate: (old: S, update: U) => S,
+): [(props: U) => Expression, (ctx: Context) => S] {
+  const [getConfigState, setConfigState] = createSubstate<S>(defaultValue);
 
-  const setterMacro = (props: T) => {
+  const setterMacro = (props: U) => {
     return (
       <impure
         fun={(ctx: Context) => {
@@ -141,6 +157,7 @@ export function makeConfigOptions<T>(
             state.push({
               getter: getConfigState,
               setter: setConfigState,
+              applyUpdate,
               changesToApply: props,
             });
             return "";

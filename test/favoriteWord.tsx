@@ -2,6 +2,11 @@ import { makeConfigOptions } from "../mod.tsx";
 import { Expression } from "../deps.ts";
 
 type FavoriteWordOptions = {
+  word: string;
+  upperCase: boolean;
+};
+
+type FavoriteWordChanges = {
   /**
    * This shows as docs on the `word` prop of the `FavoriteWordConfig` macro.
    */
@@ -9,15 +14,24 @@ type FavoriteWordOptions = {
   upperCase?: boolean;
 };
 
-// The argument defines the default options.
 const [
   FavoriteWordConfig,
   getter,
-] = makeConfigOptions<FavoriteWordOptions>(
+] = makeConfigOptions<FavoriteWordOptions, FavoriteWordChanges>(
   "FavoriteWordConfig",
   {
     word: "default",
     upperCase: false,
+  },
+  (oldValue, update) => {
+    const newValue = { ...oldValue };
+    if (update.word !== undefined) {
+      newValue.word = update.word;
+    }
+    if (update.upperCase !== undefined) {
+      newValue.upperCase = update.upperCase;
+    }
+    return newValue;
   },
 );
 export { FavoriteWordConfig };

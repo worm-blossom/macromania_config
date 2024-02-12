@@ -1,8 +1,8 @@
 # Macromania Config
 
-A framework for easily adding principled, scoped configuration management to [Macromania](https://github.com/worm-blossom/macromania) macros.
+A framework for consistent, scoped configuration management for [Macromania](https://github.com/worm-blossom/macromania) macros.
 
-Imagine a macro `<FavoriteWord />` whose output should be a configurable word, either in uppercase or not. When implemented with macromania-config, the user-facing configuration API works like this:
+Imagine a macro `<FavoriteWord />` whose output should be a configurable word, optionally in uppercase. When implemented with macromania-config, the user-facing configuration API works like this:
 
 ```tsx
 <Config options={
@@ -21,21 +21,52 @@ Imagine a macro `<FavoriteWord />` whose output should be a configurable word, e
 </Config>
 ```
 
-The implementation of the `favorite-word` package uses the declarative `makeConfigOptions` function provided by `macromania-config`:
+The implementation of the `favorite-word` package uses the `makeConfigOptions` function provided by `macromania-config`:
 
 ```tsx
 import { makeConfigOptions } from "./macromania-config";
 
-// Optional properties remain unchanged when omitted from the
-// `FavoriteWordConfig` props.
+/**
+ * Internal config state for the macro.
+ */
 type FavoriteWordOptions = {
+  word: string;
+  upperCase: boolean;
+};
+
+/**
+ * User-facing type to describe changes to the config state.
+ * Note how we made the props optional.
+ */
+type FavoriteWordChanges = {
   word?: string;
   upperCase?: boolean;
 };
 
-const [FavoriteWordConfig, getter] = makeConfigOptions<FavoriteWordOptions>(
-  "FavoriteWordConfig", // name of the macro function, used in stacktraces
-  { word: "", upperCase: false }, // default value
+// Obtain setter macro and getter function
+const [
+  FavoriteWordConfig,
+  getter,
+] = makeConfigOptions<FavoriteWordOptions, FavoriteWordChanges>(
+  // name of the setter macro, as it should appear in debug information.
+  "FavoriteWordConfig", 
+  // Initial config state (of type `FavoriteWordOptions`).
+  {
+    word: "default",
+    upperCase: false,
+  },
+  // How to apply a config change to the prior config value to obtain a new one.
+  // Must return an entirely new value, not mutate the old one.
+  (oldValue, update) => {
+    const newValue = { ...oldValue };
+    if (update.word !== undefined) {
+      newValue.word = update.word;
+    }
+    if (update.upperCase !== undefined) {
+      newValue.upperCase = update.upperCase;
+    }
+    return newValue;
+  },
 );
 export { FavoriteWordConfig };
 
@@ -47,8 +78,8 @@ export function FavoriteWord(): Expression {
 }
 ```
 
-That was the complete API.
+That demonstrates the complete API.
 
-`makeConfigOptions<T>(default: T)` returns a macro for setting the config options, and a function for getting them. Code that accesses the options should treat them as immutable.
+`makeConfigOptions<S, U>(default: S, applyUpdate: (old: S, update: U) => S)` returns a macro for setting the config options, and a function for getting them.
 
-The `<Config>` macro is used by the user to set configuration options via the setter macros returned by various calls to `makeConfigOptions`. These setters error when used outside the `options` prop of the `<Config>` macro. The setters overwrite the old config value, with the exception of `undefined` (i.e., omitted) properties. These retain the prior config value.
+The `<Config>` macro is used by the user to set configuration options via the setter macros returned by various calls to `makeConfigOptions`. These setters error when used outside the `options` prop of the `<Config>` macro.
