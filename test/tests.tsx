@@ -3,9 +3,9 @@ import { Context } from "../deps.ts";
 import { assertEquals } from "../devDeps.ts";
 import { FavoriteWord, FavoriteWordConfig } from "./favoriteWord.tsx";
 
-Deno.test("favorite name example", () => {
+Deno.test("favorite name example", async () => {
   const ctx = new Context();
-  const got = ctx.evaluate(
+  const got = await ctx.evaluate(
     <>
       <FavoriteWord />
       <Config options={<FavoriteWordConfig word="chouette" />}>
@@ -21,9 +21,9 @@ Deno.test("favorite name example", () => {
   assertEquals(got, `defaultchouettepneuchouettedefault`);
 });
 
-Deno.test("setting multiple times in same options", () => {
+Deno.test("setting multiple times in same options", async () => {
   const ctx = new Context();
-  const got = ctx.evaluate(
+  const got = await ctx.evaluate(
     <>
       <FavoriteWord />
       <Config options={<FavoriteWordConfig word="chouette" />}>
@@ -44,9 +44,9 @@ Deno.test("setting multiple times in same options", () => {
   assertEquals(got, `defaultchouettepneuchouettedefault`);
 });
 
-Deno.test("error when using setter outside Config options", () => {
+Deno.test("error when using setter outside Config options", async () => {
   const ctx = new Context();
-  const got = ctx.evaluate(
+  const got = await ctx.evaluate(
     <>
       <FavoriteWord />
       <Config options={<FavoriteWordConfig word="chouette" />}>
@@ -65,7 +65,7 @@ Deno.test("error when using setter outside Config options", () => {
   assertEquals(got, null);
 });
 
-Deno.test("delayed invocation", () => {
+Deno.test("delayed invocation", async () => {
   function A() {
     let i = 0;
     return (
@@ -114,7 +114,7 @@ Deno.test("delayed invocation", () => {
     );
   }
   const ctx = new Context();
-  const got = ctx.evaluate(
+  const got = await ctx.evaluate(
     <>
       <FavoriteWord />
       <C />
@@ -138,9 +138,9 @@ Deno.test("delayed invocation", () => {
   assertEquals(got, `defaultchouettepneuchouettedefault`);
 });
 
-Deno.test("omitting options", () => {
+Deno.test("omitting options", async () => {
   const ctx = new Context();
-  const got = ctx.evaluate(
+  const got = await ctx.evaluate(
     <>
       <FavoriteWord />
       <Config options={<FavoriteWordConfig word="chouette" upperCase />}>
