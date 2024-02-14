@@ -1,4 +1,4 @@
-import { makeConfigOptions } from "../mod.tsx";
+import { createConfigOptions } from "../mod.tsx";
 import { Expression } from "../deps.ts";
 
 type FavoriteWordOptions = {
@@ -15,9 +15,9 @@ type FavoriteWordChanges = {
 };
 
 const [
-  FavoriteWordConfig,
   getter,
-] = makeConfigOptions<FavoriteWordOptions, FavoriteWordChanges>(
+  FavoriteWordConfig,
+] = createConfigOptions<FavoriteWordOptions, FavoriteWordChanges>(
   "FavoriteWordConfig",
   {
     word: "default",

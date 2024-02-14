@@ -21,10 +21,10 @@ Imagine a macro `<FavoriteWord />` whose output should be a configurable word, o
 </Config>
 ```
 
-The implementation of the `favorite-word` package uses the `makeConfigOptions` function provided by `macromania-config`:
+The implementation of the `favorite-word` package uses the `createConfigOptions` function provided by `macromania-config`:
 
 ```tsx
-import { makeConfigOptions } from "./macromania-config";
+import { createConfigOptions } from "./macromania-config";
 
 /**
  * Internal config state for the macro.
@@ -45,9 +45,9 @@ type FavoriteWordChanges = {
 
 // Obtain setter macro and getter function
 const [
-  FavoriteWordConfig,
   getter,
-] = makeConfigOptions<FavoriteWordOptions, FavoriteWordChanges>(
+  FavoriteWordConfig,
+] = createConfigOptions<FavoriteWordOptions, FavoriteWordChanges>(
   // name of the setter macro, as it should appear in debug information.
   "FavoriteWordConfig", 
   // Initial config state (of type `FavoriteWordOptions`).
@@ -80,6 +80,6 @@ export function FavoriteWord(): Expression {
 
 That demonstrates the complete API.
 
-`makeConfigOptions<S, U>(default: S, applyUpdate: (old: S, update: U) => S)` returns a macro for setting the config options, and a function for getting them.
+`createConfigOptions<S, U>(default: S, applyUpdate: (old: S, update: U) => S)` returns a macro for setting the config options, and a function for getting them.
 
-The `<Config>` macro is used by the user to set configuration options via the setter macros returned by various calls to `makeConfigOptions`. These setters error when used outside the `options` prop of the `<Config>` macro.
+The `<Config>` macro is used by the user to set configuration options via the setter macros returned by various calls to `createConfigOptions`. These setters error when used outside the `options` prop of the `<Config>` macro.

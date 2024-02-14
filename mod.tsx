@@ -6,6 +6,7 @@ import {
   Expression,
   Expressions,
   expressions,
+  renderMessagePrefix,
 } from "./deps.ts";
 
 /**
@@ -96,7 +97,7 @@ export function Config(
         const new_ = applyUpdate(old, changesToApply);
 
         if (Object.is(old, new_)) {
-          ctx.error(`Erroneous config macro, the applyUpdate function must return a new value, the old one (modified or not).`);
+          ctx.log(renderMessagePrefix("error", 0), `Erroneous config macro, the ${Colors.yellow("applyUpdate")} function must return a new value, not the old one (modified or not).`);
           return ctx.halt();
         }
 
@@ -129,11 +130,11 @@ export function Config(
  * to a new config state. The return value must be a new value, this function
  * should not mutate its arguments.
  */
-export function makeConfigOptions<S, U extends Record<string, any>>(
+export function createConfigOptions<S, U extends Record<string, any>>(
   setterName: string,
   defaultValue: S,
   applyUpdate: (old: S, update: U) => S,
-): [(props: U) => Expression, (ctx: Context) => S] {
+): [(ctx: Context) => S, (props: U) => Expression] {
   const [getConfigState, setConfigState] = createSubstate<S>(defaultValue);
 
   const setterMacro = (props: U) => {
@@ -142,14 +143,16 @@ export function makeConfigOptions<S, U extends Record<string, any>>(
         fun={(ctx: Context) => {
           const state = getState(ctx);
           if (state === null) {
-            ctx.error(
+            ctx.log(
+              renderMessagePrefix("error", 0),
               `To set configuration options, invoke the ${
                 Colors.yellow(`<${setterName} />`)
               } in the ${Colors.yellow("options")} prop of the ${
                 Colors.yellow("<Config>")
               } macro.`,
             );
-            ctx.error(
+            ctx.log(
+              renderMessagePrefix("error", 1),
               `Using this macro anywhere else deliberately causes an error.`,
             );
             return ctx.halt();
@@ -173,5 +176,5 @@ export function makeConfigOptions<S, U extends Record<string, any>>(
 
   const getterFunction = (ctx: Context) => getConfigState(ctx);
 
-  return [setterMacro, getterFunction];
+  return [getterFunction, setterMacro];
 }
