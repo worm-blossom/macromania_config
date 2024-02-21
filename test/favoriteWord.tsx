@@ -8,7 +8,7 @@ type FavoriteWordOptions = {
 
 type FavoriteWordChanges = {
   /**
-   * This shows as docs on the `word` prop of the `FavoriteWordConfig` macro.
+   * This shows as docs on the `word` prop of the `ConfigFavoriteWord` macro.
    */
   word?: string;
   upperCase?: boolean;
@@ -16,9 +16,9 @@ type FavoriteWordChanges = {
 
 const [
   getter,
-  FavoriteWordConfig,
+  ConfigFavoriteWord,
 ] = createConfigOptions<FavoriteWordOptions, FavoriteWordChanges>(
-  "FavoriteWordConfig",
+  "ConfigFavoriteWord",
   {
     word: "default",
     upperCase: false,
@@ -34,7 +34,7 @@ const [
     return newValue;
   },
 );
-export { FavoriteWordConfig };
+export { ConfigFavoriteWord };
 
 export function FavoriteWord(): Expression {
   return (

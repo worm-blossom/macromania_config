@@ -1,16 +1,16 @@
 import { Config } from "../mod.tsx";
 import { Context } from "../deps.ts";
 import { assertEquals } from "../devDeps.ts";
-import { FavoriteWord, FavoriteWordConfig } from "./favoriteWord.tsx";
+import { FavoriteWord, ConfigFavoriteWord } from "./favoriteWord.tsx";
 
 Deno.test("favorite name example", async () => {
   const ctx = new Context();
   const got = await ctx.evaluate(
     <>
       <FavoriteWord />
-      <Config options={<FavoriteWordConfig word="chouette" />}>
+      <Config options={<ConfigFavoriteWord word="chouette" />}>
         <FavoriteWord />
-        <Config options={<FavoriteWordConfig word="pneu" />}>
+        <Config options={<ConfigFavoriteWord word="pneu" />}>
           <FavoriteWord />
         </Config>
         <FavoriteWord />
@@ -26,12 +26,12 @@ Deno.test("setting multiple times in same options", async () => {
   const got = await ctx.evaluate(
     <>
       <FavoriteWord />
-      <Config options={<FavoriteWordConfig word="chouette" />}>
+      <Config options={<ConfigFavoriteWord word="chouette" />}>
         <FavoriteWord />
         <Config
           options={[
-            <FavoriteWordConfig word="foo" />,
-            <FavoriteWordConfig word="pneu" />,
+            <ConfigFavoriteWord word="foo" />,
+            <ConfigFavoriteWord word="pneu" />,
           ]}
         >
           <FavoriteWord />
@@ -49,12 +49,12 @@ Deno.test("error when using setter outside Config options", async () => {
   const got = await ctx.evaluate(
     <>
       <FavoriteWord />
-      <Config options={<FavoriteWordConfig word="chouette" />}>
+      <Config options={<ConfigFavoriteWord word="chouette" />}>
         <FavoriteWord />
         <Config
-          options={<FavoriteWordConfig word="pneu" />}
+          options={<ConfigFavoriteWord word="pneu" />}
         >
-          <FavoriteWordConfig word="foo" />
+          <ConfigFavoriteWord word="foo" />
           <FavoriteWord />
         </Config>
         <FavoriteWord />
@@ -118,13 +118,13 @@ Deno.test("delayed invocation", async () => {
     <>
       <FavoriteWord />
       <C />
-      <Config options={<FavoriteWordConfig word="chouette" />}>
+      <Config options={<ConfigFavoriteWord word="chouette" />}>
         <B />
         <FavoriteWord />
         <Config
           options={[
-            <FavoriteWordConfig word="foo" />,
-            <FavoriteWordConfig word="pneu" />,
+            <ConfigFavoriteWord word="foo" />,
+            <ConfigFavoriteWord word="pneu" />,
           ]}
         >
           <A />
@@ -143,12 +143,12 @@ Deno.test("omitting options", async () => {
   const got = await ctx.evaluate(
     <>
       <FavoriteWord />
-      <Config options={<FavoriteWordConfig word="chouette" upperCase />}>
+      <Config options={<ConfigFavoriteWord word="chouette" upperCase />}>
         <FavoriteWord />
         <Config
           options={[
-            <FavoriteWordConfig word="foo" />,
-            <FavoriteWordConfig word="pneu" />,
+            <ConfigFavoriteWord word="foo" />,
+            <ConfigFavoriteWord word="pneu" />,
           ]}
         >
           <FavoriteWord />

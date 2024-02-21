@@ -6,13 +6,13 @@ Imagine a macro `<FavoriteWord />` whose output should be a configurable word, o
 
 ```tsx
 <Config options={
-  <FavoriteWordConfig word="chouette" upperCase/>
+  <ConfigFavoriteWord word="chouette" upperCase/>
   {/* Config for further modules can go here as well. */}
 }>
   <FavoriteWord />{/* Evaluates to "CHOUETTE". */}
 
   {/* You can locally override configuration options. */}
-  <Config options={<FavoriteWordConfig word="pneu"/>}>
+  <Config options={<ConfigFavoriteWord word="pneu"/>}>
     <FavoriteWord />{/* Evaluates to "PNEU". */}
   </Config>
 
@@ -46,10 +46,10 @@ type FavoriteWordChanges = {
 // Obtain setter macro and getter function
 const [
   getter,
-  FavoriteWordConfig,
+  ConfigFavoriteWord,
 ] = createConfigOptions<FavoriteWordOptions, FavoriteWordChanges>(
   // name of the setter macro, as it should appear in debug information.
-  "FavoriteWordConfig", 
+  "ConfigFavoriteWord", 
   // Initial config state (of type `FavoriteWordOptions`).
   {
     word: "default",
@@ -68,7 +68,7 @@ const [
     return newValue;
   },
 );
-export { FavoriteWordConfig };
+export { ConfigFavoriteWord };
 
 export function FavoriteWord(): Expression {
   return <impure fun={(ctx) => {
