@@ -141,6 +141,11 @@
     "https://deno.land/std@0.63.0/path/mod.ts": "6de8885c2534757097818e302becd1cefcbc4c28ac022cc279e612ee04e8cfd1",
     "https://deno.land/std@0.63.0/path/posix.ts": "1a6e53e1c90dde43750f38134ace0f6300f7330f5456b60d4979a4564fcf5f7a",
     "https://deno.land/std@0.63.0/path/separator.ts": "9dd15d46ff84a16e13554f56af7fee1f85f8d0f379efbbe60ac066a60561f036",
-    "https://deno.land/std@0.63.0/path/win32.ts": "b530878b0f3f281c7f06fa73dc8e89a15106ab06e88ca1dea27394d09a1b0514"
+    "https://deno.land/std@0.63.0/path/win32.ts": "b530878b0f3f281c7f06fa73dc8e89a15106ab06e88ca1dea27394d09a1b0514",
+    "https://deno.land/x/logging_utils@v10.0/deps.ts": "1b27dc43357ce3edb11d55d0d91e8c7c41868d64dcf09c31857e2936a9bec8e9",
+    "https://deno.land/x/logging_utils@v10.0/mod.ts": "09bf55c9635878962fe5ddcc19d87d6cfdb62385ce062a49f9df1d098c513feb",
+    "https://deno.land/x/macromania@v0.1.0/deps.ts": "8d6e33b37efd28a06bf9fbff8160d1b60fcccc0fac0e43c04ad7c379d50e322c",
+    "https://deno.land/x/macromania@v0.1.0/mod.ts": "cc434407b5fb94dced8745356177ed087b3125c890d3fd53d38e2787e09446cc",
+    "https://deno.land/x/macromania@v0.1.0/stack.ts": "722f5ba600251b39cda4a512c00d3d64bb147795e958fe319c29c25b56fbd0b3"
   }
 }
