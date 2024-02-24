@@ -51,10 +51,10 @@ const [
   // name of the setter macro, as it should appear in debug information.
   "ConfigFavoriteWord", 
   // Initial config state (of type `FavoriteWordOptions`).
-  {
+  () => ({
     word: "default",
     upperCase: false,
-  },
+  }),
   // How to apply a config change to the prior config value to obtain a new one.
   // Must return an entirely new value, not mutate the old one.
   (oldValue, update) => {

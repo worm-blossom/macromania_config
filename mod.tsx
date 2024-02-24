@@ -38,7 +38,7 @@ type ConfigChange<S, U extends Record<string, any>> = {
  */
 type ConfigState = null | ConfigChange<any, any>[];
 
-const [getState, setState] = createSubstate<ConfigState>(null);
+const [getState, setState] = createSubstate<ConfigState>(() => null);
 
 /**
  * Apply configuration options to all children.
@@ -124,18 +124,17 @@ export function Config(
  *
  * @param setterName - The name to use for the setter macro. This is what gets
  * printed in a Macromania stacktrace.
- * @param defaultValue - The value of the config options if they are not
- * explicitly set.
+ * @param initial - A function that produces the initial config value.
  * @param applyUpdate - A function that maps an old config state and an update to it
  * to a new config state. The return value must be a new value, this function
  * should not mutate its arguments.
  */
 export function createConfigOptions<S, U extends Record<string, any>>(
   setterName: string,
-  defaultValue: S,
+  initial: () => S,
   applyUpdate: (old: S, update: U) => S,
 ): [(ctx: Context) => S, (props: U) => Expression] {
-  const [getConfigState, setConfigState] = createSubstate<S>(defaultValue);
+  const [getConfigState, setConfigState] = createSubstate<S>(initial);
 
   const setterMacro = (props: U) => {
     return (

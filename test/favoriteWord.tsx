@@ -19,10 +19,10 @@ const [
   ConfigFavoriteWord,
 ] = createConfigOptions<FavoriteWordOptions, FavoriteWordChanges>(
   "ConfigFavoriteWord",
-  {
+  () => ({
     word: "default",
     upperCase: false,
-  },
+  }),
   (oldValue, update) => {
     const newValue = { ...oldValue };
     if (update.word !== undefined) {
